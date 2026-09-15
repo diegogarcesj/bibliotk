@@ -17,7 +17,7 @@ class Book < ApplicationRecord
       }
     else
       {
-        average_rating: average_rating.present? ? average_rating.round(1, BigDecimal::ROUND_HALF_UP).to_f : nil,
+        average_rating: average_rating.round(1, BigDecimal::ROUND_HALF_UP).to_f,
         rating_label: nil
       }
     end
