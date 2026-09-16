@@ -1,6 +1,10 @@
 class Book < ApplicationRecord
   has_many :reviews, dependent: :restrict_with_error
 
+  validates :title, presence: true
+  validates :reviews_sum, numericality: { greater_than_or_equal_to: 0 }
+  validates :reviews_count, numericality: { greater_than_or_equal_to: 0 }
+
   MINIMUM_REVIEWS_FOR_RATING = 3
 
   def average_rating
