@@ -2,7 +2,13 @@ require "rails_helper"
 
 RSpec.describe Reviews::Create do
   self.use_transactional_tests = false
-  
+
+  after do
+    Review.delete_all
+    User.delete_all
+    Book.delete_all
+  end
+
   describe "concurrent reviews for the same book" do
     it "keeps the book statistics consistent with 200 concurrent users" do
       book = Book.create!(title: "Dune")

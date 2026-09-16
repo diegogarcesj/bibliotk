@@ -3,6 +3,12 @@ require "rails_helper"
 RSpec.describe Review, type: :model do
   self.use_transactional_tests = false
 
+  after do
+    Review.delete_all
+    User.delete_all
+    Book.delete_all
+  end
+
   describe "concurrent uniqueness" do
     it "allows only one review per user and book" do
       user = create(:user)

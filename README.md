@@ -210,13 +210,11 @@ En una aplicación de producción, los endpoints de baneo, desbaneo y estimació
 
 La suite utiliza RSpec.
 
-Antes de ejecutar los tests por primera vez, preparar la base de datos del entorno de test:
+Antes de ejecutar los tests por primera vez, crea la base de datos del entorno de test:
 
 ```bash
-RAILS_ENV=test bin/rails db:prepare
+RAILS_ENV=test bin/rails db:create
 ```
-
-Esto crea la base de datos de test si es necesario y aplica el esquema/migraciones correspondientes.
 
 ## Ejecutar toda la suite
 
@@ -224,13 +222,6 @@ Esto crea la base de datos de test si es necesario y aplica el esquema/migracion
 bundle exec rspec
 ```
 
-También puede utilizarse:
-
-```bash
-bin/rspec
-```
-
-si el binstub de RSpec está disponible en el proyecto.
 
 ## Ejecutar un archivo específico
 

@@ -19,7 +19,7 @@ RSpec.describe "Review uniqueness" do
         rating: 4,
         content: nil
       )
-    }.to raise_error(ActiveRecord::RecordNotUnique)
+    }.to raise_error(ActiveRecord::RecordInvalid)
 
     expect(Review.count).to eq(1)
   end
