@@ -7,3 +7,11 @@
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
+
+puts "Ejecutando seed principal..."
+
+load Rails.root.join("db/seeds/main.rb")
+
+puts "Seed principal completado."
+
+puts "Para ejecutar el stress_test seed con 500000 reviews, ejecuta: bin/rails runner db/seeds/stress_test.rb"
