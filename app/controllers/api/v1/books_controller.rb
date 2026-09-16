@@ -14,6 +14,7 @@ module Api
           reviews: book.reviews
             .from_active_users
             .includes(:user)
+            .limit(100)
             .order(created_at: :desc)
             .map { |review| review_json(review) }
         )
