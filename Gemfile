@@ -53,3 +53,6 @@ group :development, :test do
   gem "factory_bot_rails"
   gem "faker"
 end
+
+# JSON gem version fix
+gem "json", "2.21.2"
