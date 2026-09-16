@@ -1,85 +1,88 @@
 require "rails_helper"
 
-RSpec.describe Users::Ban do
+RSpec.describe Users::Ban, type: :service do
   describe ".call" do
-    it "excludes all reviews from the banned user" do
-      user = User.create!
-      other_user = User.create!
+    let(:user) { create(:user) }
 
-      first_book = Book.create!(title: "Dune")
-      second_book = Book.create!(title: "Foundation")
-
-      Reviews::Create.call(
-        user,
-        first_book,
-        rating: 5,
-        content: "Muy bueno"
+    let(:book) do
+      create(
+        :book,
+        reviews_sum: 12,
+        reviews_count: 3
       )
-
-      Reviews::Create.call(
-        user,
-        second_book,
-        rating: 4,
-        content: "Bueno"
-      )
-
-      Reviews::Create.call(
-        other_user,
-        first_book,
-        rating: 3,
-        content: "Normal"
-      )
-
-      expect(first_book.reload.reviews_count).to eq(2)
-      expect(first_book.reviews_sum).to eq(8)
-
-      expect(second_book.reload.reviews_count).to eq(1)
-      expect(second_book.reviews_sum).to eq(4)
-
-      described_class.call(user)
-
-      expect(user.reload.banned?).to be(true)
-
-      first_book.reload
-      second_book.reload
-
-      expect(first_book.reviews_count).to eq(1)
-      expect(first_book.reviews_sum).to eq(3)
-
-      expect(second_book.reviews_count).to eq(0)
-      expect(second_book.reviews_sum).to eq(0)
-
-      expect(Review.count).to eq(3)
     end
 
-    it "is idempotent when the user is already banned" do
-      user = User.create!
-    
-      first_result = described_class.call(user)
-      first_banned_at = first_result.banned_at
-    
-      second_result = described_class.call(user)
-    
-      expect(second_result.reload.banned?).to be(true)
-      expect(second_result.banned_at).to eq(first_banned_at)
+    let!(:user_review) do
+      create(
+        :review,
+        user: user,
+        book: book,
+        rating: 5
+      )
     end
 
-    it "keeps the user's reviews stored" do
-      user = User.create!
-      book = Book.create!(title: "Dune")
-    
-      review = Reviews::Create.call(
-        user,
-        book,
-        rating: 5,
-        content: "Excelente"
+    let!(:other_review_one) do
+      create(
+        :review,
+        user: create(:user),
+        book: book,
+        rating: 4
       )
-    
+    end
+
+    let!(:other_review_two) do
+      create(
+        :review,
+        user: create(:user),
+        book: book,
+        rating: 3
+      )
+    end
+
+    it "bans the user" do
+      expect {
+        described_class.call(user)
+      }.to change {
+        user.reload.banned?
+      }.from(false).to(true)
+    end
+
+    it "preserves the user's reviews" do
       expect {
         described_class.call(user)
       }.not_to change(Review, :count)
-    
-      expect(Review.find(review.id)).to be_present
+
+      expect(user_review.reload).to be_persisted
+    end
+
+    it "removes the banned user's rating from the book aggregates" do
+      described_class.call(user)
+
+      book.reload
+
+      expect(book.reviews_sum).to eq(7)
+      expect(book.reviews_count).to eq(2)
+    end
+
+    it "causes the book to fall below the public rating threshold" do
+      described_class.call(user)
+
+      expect(book.reload.rating_display).to eq(
+        average_rating: nil,
+        rating_label: "Reseñas Insuficientes"
+      )
+    end
+
+    it "is idempotent when the user is already banned" do
+      described_class.call(user)
+
+      expect(user.reload).to be_banned
+
+      expect {
+        described_class.call(user)
+      }.not_to change {
+        user.reload.banned?
+      }
     end
   end
 end
