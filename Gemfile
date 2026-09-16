@@ -50,4 +50,6 @@ group :development, :test do
 
   # RSpec for testing
   gem "rspec-rails"
+  gem "factory_bot_rails"
+  gem "faker"
 end
