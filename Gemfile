@@ -55,4 +55,4 @@ group :development, :test do
 end
 
 # JSON gem version fix
-gem "json", "2.21.2"
+gem "json", "3.0.2"
